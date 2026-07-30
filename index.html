@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open in Minds</title>
+<style>
+  :root { color-scheme: dark light; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: #0d1117; color: #e6edf3;
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .card {
+    max-width: 520px; width: 100%; background: #161b22; border: 1px solid #30363d;
+    border-radius: 14px; padding: 28px 28px 24px; text-align: center;
+  }
+  h1 { font-size: 1.4em; margin: 0 0 6px; }
+  p { margin: 10px 0; color: #c7d0da; }
+  .muted { color: #8b949e; font-size: .9em; }
+  a.button {
+    display: inline-block; margin: 14px 0 6px; padding: 12px 22px; border-radius: 10px;
+    background: #5B4BDB; color: #fff; font-weight: 700; text-decoration: none; font-size: 1.05em;
+  }
+  a.button:hover { background: #6E5DE6; }
+  code, pre { background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .82em; }
+  pre { padding: 10px 12px; overflow-x: auto; text-align: left; color: #adbac7; }
+  a { color: #58a6ff; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="head">Opening in Minds…</h1>
+    <p id="target"></p>
+    <p><a id="btn" class="button" href="#">Open in Minds</a></p>
+    <p class="muted">If nothing happens, the Minds desktop app may not be installed, or your
+      browser blocked the launch. Click the button above, or paste this into your address bar:</p>
+    <pre id="deeplink"></pre>
+    <p class="muted" id="repolink"></p>
+  </div>
+<script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var gitUrl = params.get("git_url") || "";
+    var branch = params.get("branch") || "";
+    function build(u, b) {
+      if (!u) return "";
+      var s = "minds://create?git_url=" + encodeURIComponent(u);
+      if (b) s += "&branch=" + encodeURIComponent(b);
+      return s;
+    }
+    var deep = build(gitUrl, branch);
+    var btn = document.getElementById("btn");
+    var dl = document.getElementById("deeplink");
+    var tgt = document.getElementById("target");
+    var repo = document.getElementById("repolink");
+    var head = document.getElementById("head");
+    if (deep) {
+      btn.setAttribute("href", deep);
+      dl.textContent = deep;
+      tgt.textContent = "This creates a new Minds workspace from:";
+      if (/^https:\/\/github\.com\//.test(gitUrl)) {
+        var a = document.createElement("a");
+        a.href = gitUrl; a.textContent = gitUrl; a.rel = "noreferrer";
+        repo.appendChild(document.createTextNode("Source: "));
+        repo.appendChild(a);
+      }
+      // Try to launch automatically; a real click on the button is the reliable path.
+      setTimeout(function () { window.location.href = deep; }, 600);
+    } else {
+      head.textContent = "Open in Minds";
+      tgt.textContent = "Add a ?git_url= parameter, e.g. ?git_url=https://github.com/owner/repo";
+      btn.style.display = "none";
+    }
+  })();
+</script>
+</body>
+</html>
